@@ -23,7 +23,15 @@ Discover AI-powered tools and practical workflows for creating original digital 
 
 **Featured Tool: [Artistly AI](https://finsavvyllama.com/go/artistlygh)**
 
-Explore an AI-powered creative platform for generating artwork and building digital clipart collections.
+### 🎁 Exclusive Artistly AI Offer
+
+**Save up to 85% on Artistly AI!**
+
+Explore AI-powered clipart creation and unlock special savings through our promotional link.
+
+👉 **[GET UP TO 85% OFF ARTISTLY AI](https://finsavvyllama.com/go/artistlygh)**
+
+*Discount availability and eligibility may vary. Check the offer page for current terms.*
 
 ### 🖼️ 2. Image Preparation Tools
 
