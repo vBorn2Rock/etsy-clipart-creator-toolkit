@@ -75,13 +75,13 @@ Learn how to turn your artwork into attractive digital products.
 
 ## 🧰 Available Tools
 
+The toolkit currently includes three published Scriptable utilities for iPadOS.
+
 | Tool | Platform | Status |
 |---|---|---|
-| PNG 300 DPI Utility | Scriptable / iPadOS | Coming Soon |
-| Batch Image Renamer | Scriptable / iPadOS | Coming Soon |
-| Etsy Image Watermarker | Scriptable / iPadOS | Coming Soon |
-
-Tools will be added with installation instructions, usage examples, and screenshots.
+| [PNG 300 DPI Converter](tools/png-300-dpi/) | Scriptable / iPadOS | 🟢 Published |
+| [Batch Image Renamer](tools/batch-image-renamer) | Scriptable / iPadOS | 🟢 Published |
+| [Image Watermarker](tools/image-watermarker) | Scriptable / iPadOS | 🟢 Published |
 
 ---
 
