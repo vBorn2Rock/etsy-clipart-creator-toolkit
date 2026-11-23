@@ -9,6 +9,18 @@ Whether you're starting your first Etsy digital download shop or improving an ex
 
 ---
 
+## 🧰 Available Tools
+
+The toolkit currently includes three published Scriptable utilities for iPadOS.
+
+| Tool | Platform | Status |
+|---|---|---|
+| [PNG 300 DPI Converter](tools/png-300-dpi/) | Scriptable / iPadOS | 🟢 Published |
+| [Batch Image Renamer](tools/batch-image-renamer) | Scriptable / iPadOS | 🟢 Published |
+| [Image Watermarker](tools/image-watermarker) | Scriptable / iPadOS | 🟢 Published |
+
+---
+
 ## ✨ What's Included
 
 ### 🎨 1. AI Clipart Creation
@@ -70,18 +82,6 @@ Learn how to turn your artwork into attractive digital products.
 - SEO titles and tags
 - Digital product presentation
 - Clipart bundle organization
-
----
-
-## 🧰 Available Tools
-
-The toolkit currently includes three published Scriptable utilities for iPadOS.
-
-| Tool | Platform | Status |
-|---|---|---|
-| [PNG 300 DPI Converter](tools/png-300-dpi/) | Scriptable / iPadOS | 🟢 Published |
-| [Batch Image Renamer](tools/batch-image-renamer) | Scriptable / iPadOS | 🟢 Published |
-| [Image Watermarker](tools/image-watermarker) | Scriptable / iPadOS | 🟢 Published |
 
 ---
 
