@@ -115,11 +115,13 @@ Documentation and practical tutorials will be added as the toolkit develops.
 
 ## 💻 Platform and Compatibility
 
-Some utilities in this project are designed for **Scriptable on iOS and iPadOS**.
+Currently published utilities are designed for **Scriptable on iOS and iPadOS.**
 
-Scriptable allows users to automate tasks using JavaScript directly on Apple devices.
+[Scriptable](https://scriptable.app)⁠ allows users to automate tasks using JavaScript directly on Apple devices.
 
-Each utility will include its own instructions and compatibility information.
+Each utility includes its own instructions, supported file formats, and compatibility information.
+
+More tools and resources may be added for other platforms in the future.
 
 ---
 
