@@ -23,27 +23,15 @@ The toolkit currently includes three published Scriptable utilities for iPadOS.
 
 ## ✨ What's Included
 
-### 🎨 1. AI Clipart Creation
+### 🎨 1. Digital Artwork Preparation
 
-Discover AI-powered tools and practical workflows for creating original digital artwork.
+Resources and workflows related to digital image preparation.
 
-- AI clipart generation workflows
-- Artistly AI guides and tutorials
-- Clipart prompt resources
-- Transparent PNG preparation
-- Digital clipart bundle creation
-
-**Featured Tool: [Artistly AI](https://finsavvyllama.com/go/artistlygh)**
-
-### 🎁 Exclusive Artistly AI Offer
-
-**Save up to 85% on Artistly AI!**
-
-Explore AI-powered clipart creation and unlock special savings through our promotional link.
-
-👉 **[GET UP TO 85% OFF ARTISTLY AI](https://finsavvyllama.com/go/artistlygh)**
-
-*Discount availability and eligibility may vary. Check the offer page for current terms.*
+* Transparent PNG preparation
+* Image format handling
+* Image dimensions and resolution
+* Digital artwork organization
+* File preparation workflows
 
 ### 🖼️ 2. Image Preparation Tools
 
@@ -129,7 +117,7 @@ More tools and resources may be added for other platforms in the future.
 
 The goal of this project is simple: make Etsy digital product creation easier through useful tools, practical automation, and accessible tutorials.
 
-This is an independently maintained community resource. It is not affiliated with, endorsed by, or officially connected to Etsy or Artistly.
+This is an independently maintained community resource. It is not affiliated with, endorsed by, or officially connected to Etsy.
 
 ---
 
@@ -138,14 +126,6 @@ This is an independently maintained community resource. It is not affiliated wit
 Suggestions, bug reports, improvements, and contributions are welcome.
 
 If you find an issue or have an idea for a useful tool, feel free to open a GitHub issue.
-
----
-
-## 💡 Affiliate Disclosure
-
-Some resources mentioned in this project may contain affiliate links. If you purchase through these links, the project maintainer may earn a commission at no additional cost to you.
-
-Affiliate relationships do not influence the goal of providing useful and honest information.
 
 ---
 
