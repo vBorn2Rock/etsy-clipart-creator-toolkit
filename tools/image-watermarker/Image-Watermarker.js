@@ -1,5 +1,5 @@
 // ==================================================
-// Image Watermark — Version 1
+// Image Watermark — Version 1.1
 //
 // Part of: Etsy A-Z Clipart Creator Toolkit
 //
@@ -14,13 +14,24 @@
 //
 // --------------------------------------------------
 //
+// WHAT'S NEW IN 1.1
+// - "Engraved" two-tone watermark: a soft light layer plus a
+//   soft dark shadow layer. Nearly invisible at normal size,
+//   clearly readable when zoomed in, on light AND dark areas.
+// - Cleaner font: Avenir Next Demi Bold (instead of thin system font).
+// - Text is centered on its position, so it never gets clipped
+//   or wrapped by a wrong width estimate.
+// - Staggered grid with light jitter: even coverage across the
+//   whole image (hard to crop out) but never in a straight,
+//   ugly line. Mark count adapts to image shape.
+// - Text auto-shrinks if a long watermark would not fit a cell.
+//
 // SUPPORTED: JPG, JPEG, PNG
 // DEFAULT WATERMARK: MyTreasureHub
-// DEFAULT OPACITY: 12%
+// OPACITY: choose at runtime
 // DEFAULT SIZE: Medium
-// PATTERN: 12 randomized watermark placements
-// COLOUR: White
-// SHADOW: Off
+// PATTERN: ~12 staggered placements with slight jitter
+// FONT: choose at runtime (handwritten / script / sans)
 // JPEG QUALITY: 95%
 //
 // SAFETY:
@@ -30,6 +41,9 @@
 // - Skips Output folders.
 // - Never overwrites existing output files.
 // - Verifies saved images after processing.
+//
+// ==================================================
+
 
 // --------------------------------------------------
 // SETTINGS
@@ -37,10 +51,34 @@
 
 const fm = FileManager.local();
 
-const DEFAULT_WATERMARK = "MyTreasureHub";
-const DEFAULT_OPACITY = "12";
+// Typed input is not readable in Scriptable on this iPad,
+// so watermark text is chosen from this list (edit freely).
+// If the list has only one item, no question is asked.
+const WATERMARK_OPTIONS = [
+  "MyTreasureHub",
+  "© MyTreasureHub"
+];
 
+
+// Font choices (all built into iPadOS).
+// scale   = size adjustment (script fonts look smaller)
+// charW   = average glyph width vs font size (for fitting)
+const FONT_OPTIONS = [
+  { label: "Bradley Hand (Recommended)", name: "BradleyHandITCTT-Bold", scale: 1.2, charW: 0.5 },
+  { label: "Handwritten (Noteworthy)", name: "Noteworthy-Bold", scale: 1.1, charW: 0.55 },
+  { label: "Elegant script (Snell)", name: "SnellRoundhand-Bold", scale: 1.3, charW: 0.48 },
+  { label: "Clean sans (Avenir)", name: "AvenirNext-DemiBold", scale: 1.0, charW: 0.62 }
+];
+
+// Target number of marks (actual count adapts to image shape).
 const WATERMARK_COUNT = 12;
+
+// Random shift of each mark inside its cell (0 = none, 0.1 = ±10%).
+const JITTER = 0.1;
+
+// Dark shadow layer strength relative to the light layer.
+const SHADOW_STRENGTH = 0.9;
+
 const JPEG_QUALITY = 0.95;
 
 const SUPPORTED_EXTENSIONS = [
@@ -49,54 +87,78 @@ const SUPPORTED_EXTENSIONS = [
   ".png"
 ];
 
+
 // --------------------------------------------------
-// WATERMARK SETTINGS DIALOG
+// WATERMARK TEXT (chosen from WATERMARK_OPTIONS)
 // --------------------------------------------------
 
-const prompt = new Alert();
+let watermark = WATERMARK_OPTIONS[0];
 
-prompt.title = "Image Watermark";
-prompt.message =
-  "Customize your repeated watermark pattern.";
+if (WATERMARK_OPTIONS.length > 1) {
 
-prompt.addTextField(
-  "Watermark text",
-  DEFAULT_WATERMARK
-);
+  const textPrompt = new Alert();
 
-prompt.addTextField(
-  "Opacity (1–100%)",
-  DEFAULT_OPACITY
-);
+  textPrompt.title = "Watermark Text";
+  textPrompt.message = "Choose the watermark text.";
 
-prompt.addAction("Continue");
-prompt.addCancelAction("Cancel");
+  for (const option of WATERMARK_OPTIONS) {
+    textPrompt.addAction(option);
+  }
 
-const promptResult = await prompt.present();
+  textPrompt.addCancelAction("Cancel");
 
-if (promptResult === -1) {
+  const textResult = await textPrompt.presentAlert();
+
+  if (textResult === -1) {
+    Script.complete();
+    return;
+  }
+
+  watermark = WATERMARK_OPTIONS[textResult];
+}
+
+// Opacity is chosen with buttons (typed numbers are not
+// reliably returned by Scriptable on this iPadOS version).
+const RECOMMENDED_OPACITY = 14;
+const opacityOptions = [10, 14, 16, 20, 25, 30];
+
+const opacityPrompt = new Alert();
+
+opacityPrompt.title = "Watermark Opacity";
+opacityPrompt.message =
+  "Lower = more subtle. 14% is recommended for Etsy covers.";
+
+for (const option of opacityOptions) {
+  opacityPrompt.addAction(option + "%" + (option === RECOMMENDED_OPACITY ? " (Recommended)" : ""));
+}
+
+opacityPrompt.addCancelAction("Cancel");
+
+const opacityResult = await opacityPrompt.presentAlert();
+
+if (opacityResult === -1) {
   Script.complete();
   return;
 }
 
-const watermark = prompt.textFieldValue(0).trim();
-const opacityInput = prompt.textFieldValue(1).trim();
+const opacityNumber = opacityOptions[opacityResult];
 
-const watermarkOpacity = Number(opacityInput) / 100;
+
+// --------------------------------------------------
+// VALIDATE INPUTS
+// --------------------------------------------------
+
+watermark = watermark.trim();
 
 if (!watermark) {
   throw new Error("Watermark text cannot be empty.");
 }
 
-if (
-  !Number.isFinite(watermarkOpacity) ||
-  watermarkOpacity <= 0 ||
-  watermarkOpacity > 1
-) {
-  throw new Error(
-    "Invalid opacity. Enter a number between 1 and 100."
-  );
-}
+const watermarkOpacity = opacityNumber / 100;
+
+console.log("Watermark: " + watermark);
+console.log("Opacity applied: " + watermarkOpacity);
+
 
 // --------------------------------------------------
 // WATERMARK SIZE
@@ -119,20 +181,42 @@ if (sizeResult === -1) {
   return;
 }
 
-const sizeMultipliers = [
-  0.016,  // Small
-  0.022,  // Medium
-  0.028   // Large
-];
+// Fraction of the image's shorter side used as font size.
+const sizeMultipliers = [0.016, 0.022, 0.028];
+const sizeLabels = ["Small", "Medium", "Large"];
 
-const sizeLabels = [
-  "Small",
-  "Medium",
-  "Large"
-];
+if (sizeResult < 0 || sizeResult >= sizeMultipliers.length) {
+  throw new Error("Invalid watermark size selection.");
+}
 
 const selectedSize = sizeMultipliers[sizeResult];
 const selectedSizeLabel = sizeLabels[sizeResult];
+
+
+// --------------------------------------------------
+// WATERMARK FONT
+// --------------------------------------------------
+
+const fontPrompt = new Alert();
+
+fontPrompt.title = "Watermark Font";
+fontPrompt.message = "Choose the watermark font style.";
+
+for (const option of FONT_OPTIONS) {
+  fontPrompt.addAction(option.label);
+}
+
+fontPrompt.addCancelAction("Cancel");
+
+const fontResult = await fontPrompt.presentAlert();
+
+if (fontResult === -1) {
+  Script.complete();
+  return;
+}
+
+const selectedFont = FONT_OPTIONS[fontResult];
+
 
 // --------------------------------------------------
 // SELECT SOURCE FOLDER
@@ -154,11 +238,13 @@ if (!fm.fileExists(outputRoot)) {
   fm.createDirectory(outputRoot, true);
 }
 
+
 // --------------------------------------------------
 // GET FILE EXTENSION
 // --------------------------------------------------
 
 function getExtension(path) {
+
   const filename = fm.fileName(path, true);
   const dot = filename.lastIndexOf(".");
 
@@ -166,6 +252,7 @@ function getExtension(path) {
 
   return filename.substring(dot).toLowerCase();
 }
+
 
 // --------------------------------------------------
 // COLLECT IMAGES
@@ -191,9 +278,7 @@ function collectImages(directory) {
       continue;
     }
 
-    const extension = getExtension(path);
-
-    if (SUPPORTED_EXTENSIONS.includes(extension)) {
+    if (SUPPORTED_EXTENSIONS.includes(getExtension(path))) {
       imageFiles.push(path);
     }
   }
@@ -201,139 +286,165 @@ function collectImages(directory) {
 
 collectImages(root);
 
+
 // --------------------------------------------------
-// RANDOM NUMBER HELPER
+// HELPERS
 // --------------------------------------------------
 
 function randomBetween(min, max) {
   return min + Math.random() * (max - min);
 }
 
+function clamp(value, min, max) {
+  return Math.max(min, Math.min(value, max));
+}
+
+
 // --------------------------------------------------
-// CREATE RANDOMIZED WATERMARK PATTERN
+// CREATE WATERMARKED IMAGE
 // --------------------------------------------------
 
-function createWatermarkedImage(original) {
+let lastMarkCount = 0;
+
+function createWatermarkedImage(original, isPng) {
 
   const width = original.size.width;
   const height = original.size.height;
-
   const shortSide = Math.min(width, height);
 
-  const margin = Math.round(shortSide * 0.025);
+  const margin = Math.round(shortSide * 0.03);
 
-  // Three columns across the image.
-  const columns = 3;
 
-  // Calculate rows according to watermark count.
-  const rows = Math.ceil(WATERMARK_COUNT / columns);
+  // Grid shape adapts to the image's aspect ratio
+  // (4:3 -> 4x3, square -> 3x4, wide -> 5x3).
+  const columns = Math.max(
+    2,
+    Math.round(Math.sqrt(WATERMARK_COUNT * width / height))
+  );
+
+  const rows = Math.max(
+    2,
+    Math.ceil(WATERMARK_COUNT / columns)
+  );
 
   const cellWidth = width / columns;
   const cellHeight = height / rows;
 
-  // Estimate text width and keep it inside each cell.
-const fontSize = Math.max(
-  8,
-  Math.round(shortSide * selectedSize)
-);
 
-const textWidth = Math.min(
-  cellWidth - margin * 2,
-  Math.ceil(watermark.length * fontSize * 0.75) + 12
-);
+  // Font size, shrunk if the text would not fit a cell.
+  const CHAR_WIDTH = selectedFont.charW;
 
-  const textHeight = Math.ceil(fontSize * 2.2);
+  let fontSize = Math.max(
+    10,
+    Math.round(shortSide * selectedSize * selectedFont.scale)
+  );
 
+  const maxTextWidth = cellWidth * 0.8;
+
+  if (watermark.length * fontSize * CHAR_WIDTH > maxTextWidth) {
+    fontSize = Math.max(
+      10,
+      Math.floor(maxTextWidth / (watermark.length * CHAR_WIDTH))
+    );
+  }
+
+  const estTextWidth = watermark.length * fontSize * CHAR_WIDTH;
+
+  // Draw box is deliberately wider than the text; text is
+  // centered, so a wrong estimate can never clip or wrap it.
+  const boxWidth = Math.ceil(estTextWidth * 1.6) + 20;
+  const boxHeight = Math.ceil(fontSize * 1.8);
+
+  const shadowOffset = Math.max(1, Math.round(fontSize * 0.05));
+
+
+  // Drawing context.
   const ctx = new DrawContext();
 
   ctx.size = new Size(width, height);
-  ctx.opaque = false;
+  ctx.opaque = !isPng;
   ctx.respectScreenScale = false;
 
-  // Draw original image.
   ctx.drawImageInRect(
     original,
     new Rect(0, 0, width, height)
   );
 
-  ctx.setFont(Font.systemFont(fontSize));
+  ctx.setFont(new Font(selectedFont.name, fontSize));
+  ctx.setTextAlignedCenter();
 
-  ctx.setTextColor(
-    new Color("#FFFFFF", watermarkOpacity)
+  const lightColor = new Color("#FFFFFF", watermarkOpacity);
+
+  const darkColor = new Color(
+    "#000000",
+    Math.min(1, watermarkOpacity * SHADOW_STRENGTH)
   );
 
-  // Create randomized cell order.
-  const cells = [];
+
+  // Staggered grid: odd rows are shifted half a cell.
+  let count = 0;
 
   for (let row = 0; row < rows; row++) {
+
     for (let column = 0; column < columns; column++) {
 
-      cells.push({
-        row: row,
-        column: column
-      });
+      const baseX =
+        (column + (row % 2 === 0 ? 0.3 : 0.7)) * cellWidth;
+
+      const baseY = (row + 0.5) * cellHeight;
+
+      let cx =
+        baseX + randomBetween(-JITTER, JITTER) * cellWidth;
+
+      let cy =
+        baseY + randomBetween(-JITTER, JITTER) * cellHeight;
+
+      // Keep the whole text inside the image.
+      cx = clamp(
+        cx,
+        margin + estTextWidth / 2,
+        width - margin - estTextWidth / 2
+      );
+
+      cy = clamp(
+        cy,
+        margin + fontSize,
+        height - margin - fontSize
+      );
+
+      const rectX = cx - boxWidth / 2;
+      const rectY = cy - fontSize * 0.8;
+
+      // 1) Dark shadow layer (offset down-right).
+      ctx.setTextColor(darkColor);
+
+      ctx.drawTextInRect(
+        watermark,
+        new Rect(
+          rectX + shadowOffset,
+          rectY + shadowOffset,
+          boxWidth,
+          boxHeight
+        )
+      );
+
+      // 2) Light layer on top.
+      ctx.setTextColor(lightColor);
+
+      ctx.drawTextInRect(
+        watermark,
+        new Rect(rectX, rectY, boxWidth, boxHeight)
+      );
+
+      count++;
     }
   }
 
-  // Shuffle positions.
-  for (let i = cells.length - 1; i > 0; i--) {
-
-    const j = Math.floor(Math.random() * (i + 1));
-
-    const temp = cells[i];
-    cells[i] = cells[j];
-    cells[j] = temp;
-  }
-
-  // Draw watermark in each randomized cell.
-  for (let i = 0; i < WATERMARK_COUNT; i++) {
-
-    const cell = cells[i];
-
-    const availableX = Math.max(
-      0,
-      cellWidth - textWidth - margin * 2
-    );
-
-    const availableY = Math.max(
-      0,
-      cellHeight - textHeight - margin * 2
-    );
-
-    // Randomize position inside the cell.
-    const x =
-      cell.column * cellWidth +
-      margin +
-      randomBetween(0, availableX);
-
-    const y =
-      cell.row * cellHeight +
-      margin +
-      randomBetween(0, availableY);
-
-    const safeX = Math.max(
-      0,
-      Math.min(x, width - textWidth)
-    );
-
-    const safeY = Math.max(
-      0,
-      Math.min(y, height - textHeight)
-    );
-
-    ctx.drawTextInRect(
-      watermark,
-      new Rect(
-        safeX,
-        safeY,
-        textWidth,
-        textHeight
-      )
-    );
-  }
+  lastMarkCount = count;
 
   return ctx.getImage();
 }
+
 
 // --------------------------------------------------
 // PROCESS IMAGES
@@ -348,7 +459,6 @@ const errors = [];
 for (let i = 0; i < imageFiles.length; i++) {
 
   const sourcePath = imageFiles[i];
-
   const filename = fm.fileName(sourcePath, true);
 
   console.log(
@@ -358,20 +468,14 @@ for (let i = 0; i < imageFiles.length; i++) {
 
   try {
 
-    const relativePath = sourcePath.substring(
-      root.length + 1
-    );
+    const relativePath = sourcePath.substring(root.length + 1);
 
-    const destinationPath = fm.joinPath(
-      outputRoot,
-      relativePath
-    );
+    const destinationPath = fm.joinPath(outputRoot, relativePath);
 
-    const destinationDirectory =
-      destinationPath.substring(
-        0,
-        destinationPath.lastIndexOf("/")
-      );
+    const destinationDirectory = destinationPath.substring(
+      0,
+      destinationPath.lastIndexOf("/")
+    );
 
     if (!fm.fileExists(destinationDirectory)) {
       fm.createDirectory(destinationDirectory, true);
@@ -384,6 +488,7 @@ for (let i = 0; i < imageFiles.length; i++) {
       continue;
     }
 
+    // Read original image.
     const original = fm.readImage(sourcePath);
 
     if (!original) {
@@ -393,12 +498,17 @@ for (let i = 0; i < imageFiles.length; i++) {
     const originalWidth = original.size.width;
     const originalHeight = original.size.height;
 
-    const watermarked = createWatermarkedImage(original);
+    const extension = getExtension(sourcePath);
+    const isPng = extension === ".png";
+
+    // Apply watermark.
+    const watermarked = createWatermarkedImage(original, isPng);
 
     if (!watermarked) {
       throw new Error("Watermark rendering failed.");
     }
 
+    // Verify dimensions.
     if (
       watermarked.size.width !== originalWidth ||
       watermarked.size.height !== originalHeight
@@ -406,26 +516,16 @@ for (let i = 0; i < imageFiles.length; i++) {
       throw new Error("Image dimensions changed.");
     }
 
-    const extension = getExtension(sourcePath);
-
-    let outputData;
-
-    if (extension === ".png") {
-
-      outputData = Data.fromPNG(watermarked);
-
-    } else {
-
-      outputData = Data.fromJPEG(
-        watermarked,
-        JPEG_QUALITY
-      );
-    }
+    // Encode output.
+    const outputData = isPng
+      ? Data.fromPNG(watermarked)
+      : Data.fromJPEG(watermarked, JPEG_QUALITY);
 
     if (!outputData) {
       throw new Error("Image encoding failed.");
     }
 
+    // Save output.
     fm.write(destinationPath, outputData);
 
     // Verify saved image.
@@ -449,25 +549,22 @@ for (let i = 0; i < imageFiles.length; i++) {
     successful++;
 
     console.log(
-      "OK — " +
-      originalWidth + " × " + originalHeight
+      "OK — " + originalWidth + " × " + originalHeight +
+      " (" + lastMarkCount + " marks)"
     );
 
   } catch (error) {
 
     failed++;
 
-    const errorMessage = String(
-      error.message || error
-    );
+    const errorMessage = String(error.message || error);
 
-    errors.push(
-      filename + "\n" + errorMessage
-    );
+    errors.push(filename + "\n" + errorMessage);
 
     console.log("FAILED: " + errorMessage);
   }
 }
+
 
 // --------------------------------------------------
 // FINAL REPORT
@@ -478,16 +575,25 @@ const report = new Alert();
 report.title = "Watermarking Finished";
 
 report.message =
+
   "Watermark: " + watermark + "\n" +
-  "Opacity: " +
-  Math.round(watermarkOpacity * 100) + "%\n" +
+
+  "Opacity: " + Math.round(watermarkOpacity * 100) + "%\n" +
+
   "Size: " + selectedSizeLabel + "\n" +
-  "Pattern: " + WATERMARK_COUNT + " randomized marks\n" +
+
+  "Font: " + selectedFont.label + "\n" +
+
+  "Pattern: ~" + WATERMARK_COUNT + " staggered marks\n" +
+
   "JPEG quality: 95%\n\n" +
 
   "Files found: " + imageFiles.length + "\n" +
+
   "Successful: " + successful + "\n" +
+
   "Skipped: " + skipped + "\n" +
+
   "Failed: " + failed +
 
   (errors.length > 0
