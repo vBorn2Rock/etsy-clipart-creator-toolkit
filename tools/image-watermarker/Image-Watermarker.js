@@ -3,9 +3,6 @@
 //
 // Part of: Etsy A-Z Clipart Creator Toolkit
 //
-// Website:
-// https://FinSavvyLlama.com
-//
 // GitHub Profile:
 // https://github.com/vBorn2Rock
 //
