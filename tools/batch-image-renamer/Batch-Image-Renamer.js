@@ -1,5 +1,5 @@
 // ==================================================
-// Batch Image Renamer — Version 1
+// Batch Image Renamer — Version 1.1
 //
 // Part of: Etsy A-Z Clipart Creator Toolkit
 //
@@ -84,6 +84,7 @@ if (!fm.isDirectory(folderPath)) {
   throw new Error("Selected location is not a folder.");
 }
 
+
 // --------------------------------------------------
 // 4. GET PROJECT NAME AND STARTING NUMBER
 // --------------------------------------------------
@@ -95,12 +96,13 @@ input.title = "Images Batch Renamer";
 input.message =
   "Enter your project name and starting number.";
 
-input.addTextField(
+// Keep direct references to both text fields.
+const projectField = input.addTextField(
   "Project name",
   ""
 );
 
-input.addTextField(
+const numberField = input.addTextField(
   "Starting number",
   "001"
 );
@@ -114,15 +116,27 @@ if (inputResult === -1) {
   throw new Error("Operation cancelled.");
 }
 
-const projectName = input.textFieldValue(0).trim();
+// Read directly from the TextField objects.
+const projectName = String(
+  projectField.text ?? ""
+).trim();
 
-const startingText =
-  input.textFieldValue(1).trim() || "001";
+const startingText = String(
+  numberField.text ?? "001"
+).trim() || "001";
 
+// Validate project name.
 if (!projectName) {
-  throw new Error("Project name is required.");
+  const error = new Alert();
+  error.title = "Missing Project Name";
+  error.message =
+    "Please enter a project name and try again.";
+  error.addAction("OK");
+  await error.presentAlert();
+  Script.complete();
 }
 
+// Validate starting number.
 if (!/^\d+$/.test(startingText)) {
   throw new Error(
     "Starting number must contain digits only."
@@ -137,6 +151,7 @@ if (
 ) {
   throw new Error("Invalid starting number.");
 }
+
 
 // --------------------------------------------------
 // 5. GENERATE PROJECT SLUG
