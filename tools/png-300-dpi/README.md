@@ -67,12 +67,16 @@ Note: Scriptable settings and available options may vary by app version. The scr
 
 📖 How to Use
 
-1. Open Scriptable.
-2. Run PNG 300 DPI Converter.
-3. Select the folder or PNG files you want to process.
-4. Allow the script to access the selected files.
-5. Wait for processing to finish.
-6. Open the generated Output folder to access your processed images.
+1. Open the Files app on your iPad.
+2. Locate the folder containing the PNG images you want to process.
+3. Long-press the image folder.
+4. Tap Share.
+5. If PNG 300 DPI appears in the Share Sheet, tap it.
+6. If it isn’t visible, tap More and select PNG 300 DPI.
+7. Scriptable will launch the script.
+8. When the folder picker appears, navigate to and select the same image folder.
+9. Review the confirmation prompt, if displayed.
+10. Let the script process your PNG files.
 
 Your original files remain unchanged.
 
