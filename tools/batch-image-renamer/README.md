@@ -132,8 +132,8 @@ A dialog will appear asking for two details:
 * Project Name: Enter your desired project name.
     Example: Premium Christmas PNG Clipart
 * Starting Number: Enter the number from which sequential numbering should begin.
-    Default: 001
-    You can change it to 011, 021, or any other starting number.
+
+Default: 001 (You can change it to 011, 021, or any other starting number).
 
 5. Review and Confirm
 
