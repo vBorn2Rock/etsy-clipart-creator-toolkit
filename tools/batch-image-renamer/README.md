@@ -104,37 +104,55 @@ Open the script’s settings in Scriptable and configure:
 
 📖 How to Use
 
-Step 1 — Run the Script
+Follow these steps to batch rename your images directly from the iPhone/iPad Files app.
 
-Open Scriptable and run Batch Image Renamer.
+1. Open Image Folder
 
-Step 2 — Select Your Folder
+* Open the Files app on your iPad.
+* Locate the folder containing your images.
+* Long-press (right-click) the image folder to open its context menu.
+* Tap Share.
 
-Choose the folder containing the images you want to rename.
+2. Run Script
 
-Step 3 — Enter Project Details
+* If Batch Image Renamer is already visible in the Share Sheet, tap it.
+* If it isn’t visible, tap More to find the available actions.
+* Locate and tap Batch Image Renamer to launch the script.
 
-A dialog will ask for two details:
+3. Select Image Folder
+
+* Scriptable will open its native folder picker.
+* Navigate to the image folder you want to process.
+* Select the folder to grant Scriptable access.
+
+4. Enter Project Details
+
+A dialog will appear asking for two details:
 
 * Project Name: Enter your desired project name.
-* Starting Number: Enter the first number in your sequence.
+    Example: Premium Christmas PNG Clipart
+* Starting Number: Enter the number from which sequential numbering should begin.
+    Default: 001
+    You can change it to 011, 021, or any other starting number.
 
-Step 4 — Review the Renaming Structure
+5. Review and Confirm
 
-Before renaming, the script displays a confirmation showing:
+Before renaming, the script displays a confirmation dialog containing:
 
 * Project name
 * Starting number
 * Ending number
 * Total images found
 * Number of files to rename
-* First and last generated filenames
+* First and last resulting filenames
 
-Step 5 — Confirm Renaming
+Review the details and tap Rename All Images to begin.
 
-Tap Rename All Images to begin.
+6. Renaming Completed!
 
-The script renames the images directly inside the selected folder.
+Once processing finishes, a success dialog confirms the number of images renamed.
+
+Your original image files remain in the same folder with their original extensions.
 
 ⸻
 
