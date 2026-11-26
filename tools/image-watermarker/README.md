@@ -59,21 +59,21 @@ PNG images are saved as PNG. JPG and JPEG images are saved as JPEG at 95% qualit
 This utility uses Scriptable’s native folder picker.
 
 Setting	Configuration
-Run in App	ON
-Show in Share Sheet	OFF
-
-No Share Sheet input is required.
+Run in App	OFF
+Show in Share Sheet	ON
 
 📝 How to Use
 
-1. Open Scriptable.
-2. Run Image Watermark.
-3. Enter your watermark text.
-4. Enter the desired opacity between 1 and 100.
-5. Select Small, Medium, or Large.
-6. Choose the source folder containing your images.
-7. Wait for batch processing to finish.
-8. Review the final processing report.
+1. Open the Files app on your iPad.
+2. Locate the folder containing the images you want to watermark.
+3. Long-press the image folder.
+4. Tap Share.
+5. If Image Watermarker appears in the Share Sheet, tap it.
+6. If it isn’t visible, tap More and select Image Watermarker.
+7. Scriptable will launch the script.
+8. When the folder picker appears, navigate to and select the image folder.
+9. Enter your watermark text and adjust the watermark settings as prompted.
+10. Confirm to start processing your images.
 
 🎨 Watermark Pattern
 
